@@ -1,0 +1,5 @@
+__pycache__/
+.pytest_cache/
+junit.xml
+test-report.json
+submissions.json
