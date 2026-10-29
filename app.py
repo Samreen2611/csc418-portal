@@ -36,7 +36,8 @@ PAGE = """
 
 def is_valid_url(url):
     parts = urlparse(url.strip())
-    return True
+    return parts.scheme in ("http", "https") and bool(parts.netloc)
+    
 
 def validate(data):
     errors = []
