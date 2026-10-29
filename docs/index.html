@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment Submission Portal (Demo)</title>
+<style>
+  body { font-family: system-ui, Arial, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  input { width: 100%; padding: .5rem; margin: .3rem 0 .8rem; box-sizing: border-box; }
+  button { padding: .5rem 1.2rem; }
+  .err { color: #b00020; }
+  .ok { color: #1b7f2a; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #999; padding: .4rem; text-align: left; word-break: break-all; }
+  small { color: #666; }
+</style>
+</head>
+<body>
+<h1>Assignment Submission Portal</h1>
+<small>Static demo of the portal (GitHub Pages has no backend). Data stays in your browser.</small>
+
+<ul id="errors" class="err"></ul>
+<p id="message" class="ok"></p>
+
+<form id="form">
+  <input id="name" placeholder="Name">
+  <input id="reg_no" placeholder="Registration number">
+  <input id="title" placeholder="Assignment title">
+  <input id="url" placeholder="Submission URL">
+  <button type="submit">Submit</button>
+</form>
+
+<h2>Saved submissions</h2>
+<table>
+  <thead><tr><th>Name</th><th>Reg No</th><th>Title</th><th>URL</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<script>
+  const KEY = "submissions";
+  let items = [];
+  try { items = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { items = []; }
+
+  function isValidUrl(u) {
+    try { const p = new URL(u); return p.protocol === "http:" || p.protocol === "https:"; }
+    catch (e) { return false; }
+  }
+
+  function validate(d) {
+    const errors = [];
+    if (!d.name) errors.push("Name is required.");
+    if (!d.reg_no) errors.push("Registration number is required.");
+    if (!d.title) errors.push("Assignment title is required.");
+    if (!d.url) errors.push("Submission URL is required.");
+    else if (!isValidUrl(d.url)) errors.push("Submission URL is invalid (use http:// or https://).");
+    return errors;
+  }
+
+  function render() {
+    const rows = document.getElementById("rows");
+    rows.innerHTML = "";
+    items.forEach(s => {
+      const tr = document.createElement("tr");
+      [s.name, s.reg_no, s.title, s.url].forEach(v => {
+        const td = document.createElement("td");
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      rows.appendChild(tr);
+    });
+  }
+
+  document.getElementById("form").addEventListener("submit", e => {
+    e.preventDefault();
+    const d = {};
+    ["name", "reg_no", "title", "url"].forEach(k => d[k] = document.getElementById(k).value.trim());
+    const errors = validate(d);
+    const ul = document.getElementById("errors");
+    const msg = document.getElementById("message");
+    ul.innerHTML = "";
+    msg.textContent = "";
+    if (errors.length) {
+      errors.forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+      return;
+    }
+    items.push(d);
+    try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {}
+    msg.textContent = "Submission saved.";
+    e.target.reset();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
