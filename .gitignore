@@ -3,3 +3,4 @@ __pycache__/
 junit.xml
 test-report.json
 submissions.json
+report.json

@@ -1,4 +1,4 @@
-"""junit.xml se JSON report banata hai aur receiver ko POST karta hai."""
+"""junit.xml se JSON report banata hai, report.json me likhta hai aur receiver ko POST karta hai."""
 import json
 import os
 import sys
@@ -31,12 +31,11 @@ def parse_tests(path):
     return tests
 
 
-def main():
+def build_report():
     tests = parse_tests(JUNIT)
     passed = sum(t["result"] == "passed" for t in tests)
     failed = sum(t["result"] == "failed" for t in tests)
-
-    report = {
+    return {
         "repository": os.environ.get("GITHUB_REPOSITORY", "local"),
         "branch": os.environ.get("GITHUB_REF_NAME", "local"),
         "commit_sha": os.environ.get("GITHUB_SHA", "local"),
@@ -48,6 +47,14 @@ def main():
         "failed": failed,
         "overall_status": "passed" if tests and failed == 0 else "failed",
     }
+
+
+def main():
+    report = build_report()
+
+    # Email step ke liye local copy (receiver down ho tab bhi email chal sake)
+    with open("report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
     req = urllib.request.Request(
         RECEIVER_URL,

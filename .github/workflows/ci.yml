@@ -2,6 +2,9 @@ name: CI
 
 on: [push]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: self-hosted
@@ -19,4 +22,13 @@ jobs:
         run: python ci/send_report.py
         env:
           RECEIVER_URL: http://localhost:8000/report
-          
+
+      # Bonus: email report (pass aur fail dono me)
+      - name: Email test report
+        if: always()
+        continue-on-error: true
+        run: python ci/send_email.py
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
