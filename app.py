@@ -53,7 +53,7 @@ def validate(data):
         errors.append("Submission URL is invalid (use http:// or https://).")
     return errors
 
-
+#making submission.json file
 def create_app(data_file=None):
     app = Flask(__name__)
     path = data_file or os.environ.get("DATA_FILE", "submissions.json")
